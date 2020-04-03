@@ -1,3 +1,5 @@
+![Terraform GitHub Actions](https://github.com/mtharpe/terraform-azure-module-compute/workflows/Terraform%20GitHub%20Actions/badge.svg)
+
 # terraform-azurerm-compute
 
 [![Build Status](https://travis-ci.org/Azure/terraform-azurerm-compute.svg?branch=master)](https://travis-ci.org/Azure/terraform-azurerm-compute)
