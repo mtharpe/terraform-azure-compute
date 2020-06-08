@@ -244,6 +244,12 @@ $ docker run --rm azure-compute /bin/bash -c "bundle install && rake full"
 
 Originally created by [David Tesar](http://github.com/dtzar)
 
-## License
+## License and Maintainer
 
-[MIT](LICENSE)
+Maintainer:: HashiCorp (<hello@hashicorp.com>)
+
+Source:: https://github.com/mtharpe/terraform-azure-compute
+
+Issues:: https://github.com/mtharpe/terraform-azure-compute/issues
+
+License:: Apache-2.0
