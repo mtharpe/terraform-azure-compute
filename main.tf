@@ -194,8 +194,6 @@ resource "azurerm_network_interface" "vm" {
   name                          = "${var.vm_hostname}-nic-${count.index}"
   resource_group_name           = data.azurerm_resource_group.vm.name
   location                      = data.azurerm_resource_group.vm.location
-  enable_accelerated_networking = var.enable_accelerated_networking
-
   ip_configuration {
     name                          = "${var.vm_hostname}-ip-${count.index}"
     subnet_id                     = var.vnet_subnet_id
