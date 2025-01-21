@@ -171,7 +171,7 @@ resource "azurerm_public_ip" "vm" {
   resource_group_name = data.azurerm_resource_group.vm.name
   location            = data.azurerm_resource_group.vm.location
   allocation_method   = var.allocation_method
-  domain_name_label   = element(var.public_ip_dns, count.index)
+  domain_name_label   = var.public_ip_dns[count.index]
   tags                = var.tags
 }
 
