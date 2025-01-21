@@ -39,7 +39,7 @@ resource "azurerm_storage_account" "vm-sa" {
 }
 
 resource "azurerm_virtual_machine" "vm-linux" {
-  count                         = !contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && !var.is_windows_image ? var.nb_instances : 0
+  count                         = !contains(tolist([var.vm_os_simple, var.vm_os_offer]), "Windows") && !var.is_windows_image ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-vmLinux-${count.index}"
   resource_group_name           = data.azurerm_resource_group.vm.name
   location                      = data.azurerm_resource_group.vm.location
@@ -102,7 +102,7 @@ resource "azurerm_virtual_machine" "vm-linux" {
 }
 
 resource "azurerm_virtual_machine" "vm-windows" {
-  count                         = (var.is_windows_image || contains(list(var.vm_os_simple, var.vm_os_offer), "Windows")) ? var.nb_instances : 0
+  count                         = (var.is_windows_image || contains(tolist([var.vm_os_simple, var.vm_os_offer]), "Windows")) ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-vmWindows-${count.index}"
   resource_group_name           = data.azurerm_resource_group.vm.name
   location                      = data.azurerm_resource_group.vm.location
@@ -171,7 +171,7 @@ resource "azurerm_public_ip" "vm" {
   resource_group_name = data.azurerm_resource_group.vm.name
   location            = data.azurerm_resource_group.vm.location
   allocation_method   = var.allocation_method
-  domain_name_label   = var.public_ip_dns[count.index]
+  domain_name_label   = var.public_ip_dns
   tags                = var.tags
 }
 
