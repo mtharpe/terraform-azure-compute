@@ -138,12 +138,6 @@ variable "boot_diagnostics_sa_type" {
   default     = "Standard_LRS"
 }
 
-variable "enable_accelerated_networking" {
-  type        = bool
-  description = "(Optional) Enable accelerated networking on Network interface"
-  default     = false
-}
-
 variable "enable_ssh_key" {
   type        = bool
   description = "(Optional) Enable ssh key authentication in Linux virtual Machine"
