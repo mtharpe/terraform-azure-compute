@@ -1,4 +1,4 @@
-![Terraform GitHub Actions](https://github.com/mtharpe/terraform-azure-module-compute/workflows/Terraform%20GitHub%20Actions/badge.svg)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/mtharpe/terraform-azure-compute/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/mtharpe/terraform-azure-compute/tree/main)
 
 # terraform-azurerm-compute
 
