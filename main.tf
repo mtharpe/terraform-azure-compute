@@ -30,7 +30,7 @@ resource "azurerm_storage_account" "vm-sa" {
 }
 
 resource "azurerm_virtual_machine" "vm-linux" {
-  count                         = ! contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && ! var.is_windows_image ? var.nb_instances : 0
+  count                         = !contains(list(var.vm_os_simple, var.vm_os_offer), "Windows") && !var.is_windows_image ? var.nb_instances : 0
   name                          = "${var.vm_hostname}-vmLinux-${count.index}"
   resource_group_name           = data.azurerm_resource_group.vm.name
   location                      = data.azurerm_resource_group.vm.location
@@ -54,7 +54,7 @@ resource "azurerm_virtual_machine" "vm-linux" {
     managed_disk_type = var.storage_account_type
   }
 
-  dynamic storage_data_disk {
+  dynamic "storage_data_disk" {
     for_each = range(var.nb_data_disk)
     content {
       name              = "${var.vm_hostname}-datadisk-${count.index}-${storage_data_disk.value}"
@@ -75,7 +75,7 @@ resource "azurerm_virtual_machine" "vm-linux" {
   os_profile_linux_config {
     disable_password_authentication = var.enable_ssh_key
 
-    dynamic ssh_keys {
+    dynamic "ssh_keys" {
       for_each = var.enable_ssh_key ? [var.ssh_key] : []
       content {
         path     = "/home/${var.admin_username}/.ssh/authorized_keys"
@@ -117,7 +117,7 @@ resource "azurerm_virtual_machine" "vm-windows" {
     managed_disk_type = var.storage_account_type
   }
 
-  dynamic storage_data_disk {
+  dynamic "storage_data_disk" {
     for_each = range(var.nb_data_disk)
     content {
       name              = "${var.vm_hostname}-datadisk-${count.index}-${storage_data_disk.value}"
@@ -190,10 +190,10 @@ resource "azurerm_network_security_rule" "vm" {
 }
 
 resource "azurerm_network_interface" "vm" {
-  count                         = var.nb_instances
-  name                          = "${var.vm_hostname}-nic-${count.index}"
-  resource_group_name           = data.azurerm_resource_group.vm.name
-  location                      = data.azurerm_resource_group.vm.location
+  count               = var.nb_instances
+  name                = "${var.vm_hostname}-nic-${count.index}"
+  resource_group_name = data.azurerm_resource_group.vm.name
+  location            = data.azurerm_resource_group.vm.location
   ip_configuration {
     name                          = "${var.vm_hostname}-ip-${count.index}"
     subnet_id                     = var.vnet_subnet_id
