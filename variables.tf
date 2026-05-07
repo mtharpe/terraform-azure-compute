@@ -1,165 +1,195 @@
 variable "resource_group_name" {
-  description = "The name of the resource group in which the resources will be created"
+  description = "Name of the resource group in which the resources will be created"
   type        = string
 }
 
 variable "vnet_subnet_id" {
-  description = "The subnet id of the virtual network where the virtual machines will reside."
+  description = "Subnet ID where the VM NICs will reside"
   type        = string
 }
 
 variable "public_ip_dns" {
-  description = "Optional globally unique per datacenter region domain name label to apply to each public ip address. e.g. thisvar.varlocation.cloudapp.azure.com where you specify only thisvar here. This is an array of names which will pair up sequentially to the number of public ips defined in var.nb_public_ip. One name or empty string is required for every public ip. If no public ip is desired, then set this to an array with a single empty string."
+  description = "Optional globally unique per-datacenter-region domain name label for the public IP. Only one label is supported regardless of nb_public_ip."
   type        = string
+  default     = null
 }
 
 variable "admin_password" {
-  description = "The admin password to be used on the VMSS that will be deployed. The password must meet the complexity requirements of Azure"
+  description = "Admin password for the VM. Required for Windows or when enable_ssh_key is false."
   type        = string
+  default     = null
+  sensitive   = true
 }
 
 variable "ssh_key" {
-  description = "Path to the public key to be used for ssh access to the VM.  Only used with non-Windows vms and can be left as-is even if using Windows vms. If specifying a path to a certification on a Windows machine to provision a linux vm use the / in the path versus backslash. e.g. c:/home/id_rsa.pub"
-  default     = "~/.ssh/id_rsa.pub"
+  description = "Path to the public SSH key for Linux VMs. Ignored for Windows."
   type        = string
+  default     = "~/.ssh/id_rsa.pub"
 }
 
 variable "remote_port" {
-  description = "Remote tcp port to be used for access to the vms created via the nsg applied to the nics."
+  description = "Remote TCP port allowed inbound by the NSG. Defaults to 22 (Linux) or 3389 (Windows) based on the OS selection."
   type        = string
+  default     = null
 }
 
 variable "admin_username" {
-  description = "The admin username of the VM that will be deployed"
-  default     = "azureuser"
+  description = "Admin username for the VM"
   type        = string
+  default     = "azureuser"
 }
 
 variable "custom_data" {
-  description = "The custom data to supply to the machine. This can be used as a cloud-init for Linux systems."
+  description = "Custom data to supply to the VM (cloud-init for Linux). Will be base64-encoded by the module."
   type        = string
+  default     = null
 }
 
 variable "storage_account_type" {
-  description = "Defines the type of storage account to be created. Valid options are Standard_LRS, Standard_ZRS, Standard_GRS, Standard_RAGRS, Premium_LRS."
-  default     = "Premium_LRS"
+  description = "Type of storage account for the OS disk. Valid: Standard_LRS, StandardSSD_LRS, Premium_LRS, StandardSSD_ZRS, Premium_ZRS."
   type        = string
+  default     = "Premium_LRS"
+
+  validation {
+    condition     = contains(["Standard_LRS", "StandardSSD_LRS", "Premium_LRS", "StandardSSD_ZRS", "Premium_ZRS"], var.storage_account_type)
+    error_message = "storage_account_type must be one of Standard_LRS, StandardSSD_LRS, Premium_LRS, StandardSSD_ZRS, Premium_ZRS."
+  }
 }
 
 variable "vm_size" {
-  description = "Specifies the size of the virtual machine."
-  default     = "Standard_D2s_v3"
+  description = "Size of the virtual machine"
   type        = string
+  default     = "Standard_D2s_v3"
 }
 
 variable "nb_instances" {
-  description = "Specify the number of vm instances"
-  default     = "1"
+  description = "Number of VM instances"
   type        = number
+  default     = 1
+
+  validation {
+    condition     = var.nb_instances >= 1
+    error_message = "nb_instances must be >= 1."
+  }
 }
 
 variable "vm_hostname" {
-  description = "local name of the VM"
-  default     = "myvm"
+  description = "Local hostname/prefix for the VM. Windows VM names are truncated to 15 characters."
   type        = string
+  default     = "myvm"
 }
 
 variable "vm_os_simple" {
-  description = "Specify UbuntuServer, WindowsServer, RHEL, openSUSE-Leap, CentOS, Debian, CoreOS and SLES to get the latest image version of the specified os.  Do not provide this value if a custom value is used for vm_os_publisher, vm_os_offer, and vm_os_sku."
+  description = "Specify UbuntuServer, WindowsServer, RHEL, openSUSE-Leap, Debian, or SLES to use a curated default image. Leave empty when supplying vm_os_publisher/offer/sku or vm_os_id."
   type        = string
+  default     = ""
 }
 
 variable "vm_os_id" {
-  description = "The resource ID of the image that you want to deploy if you are using a custom image.Note, need to provide is_windows_image = true for windows custom images."
+  description = "Resource ID of a custom image. When set, overrides vm_os_simple/publisher/offer/sku. Pair with is_windows_image = true for Windows custom images."
   type        = string
+  default     = ""
 }
 
 variable "is_windows_image" {
-  description = "Boolean flag to notify when the custom image is windows based."
-  default     = false
+  description = "True when the custom image (vm_os_id) is Windows-based."
   type        = bool
+  default     = false
 }
 
 variable "vm_os_publisher" {
-  description = "The name of the publisher of the image that you want to deploy. This is ignored when vm_os_id or vm_os_simple are provided."
+  description = "Image publisher. Ignored when vm_os_id or vm_os_simple is set."
   type        = string
+  default     = null
 }
 
 variable "vm_os_offer" {
-  description = "The name of the offer of the image that you want to deploy. This is ignored when vm_os_id or vm_os_simple are provided."
+  description = "Image offer. Ignored when vm_os_id or vm_os_simple is set."
   type        = string
+  default     = null
 }
 
 variable "vm_os_sku" {
-  description = "The sku of the image that you want to deploy. This is ignored when vm_os_id or vm_os_simple are provided."
+  description = "Image SKU. Ignored when vm_os_id or vm_os_simple is set."
   type        = string
+  default     = null
 }
 
 variable "vm_os_version" {
-  description = "The version of the image that you want to deploy. This is ignored when vm_os_id or vm_os_simple are provided."
-  default     = "latest"
+  description = "Image version. Defaults to latest."
   type        = string
+  default     = "latest"
 }
 
 variable "tags" {
+  description = "Tags applied to all resources"
   type        = map(string)
-  description = "A map of the tags to use on the resources that are deployed with this module."
-
   default = {
     source = "terraform"
   }
 }
 
 variable "allocation_method" {
-  description = "Defines how an IP address is assigned. Options are Static or Dynamic."
-  default     = "Dynamic"
+  description = "Public IP allocation method. Valid: Static, Dynamic. Standard SKU IPs require Static."
   type        = string
+  default     = "Static"
+
+  validation {
+    condition     = contains(["Static", "Dynamic"], var.allocation_method)
+    error_message = "allocation_method must be Static or Dynamic."
+  }
 }
 
 variable "nb_public_ip" {
-  description = "Number of public IPs to assign corresponding to one IP per vm. Set to 0 to not assign any public IP addresses."
-  default     = "1"
+  description = "Number of public IPs to allocate (one per VM). Set to 0 to disable."
   type        = number
-}
-
-variable "delete_os_disk_on_termination" {
-  type        = bool
-  description = "Delete datadisk when machine is terminated"
-  default     = false
+  default     = 1
 }
 
 variable "data_sa_type" {
-  description = "Data Disk Storage Account type"
-  default     = "Standard_LRS"
+  description = "Storage account type for data disks"
   type        = string
+  default     = "Standard_LRS"
 }
 
 variable "data_disk_size_gb" {
-  description = "Storage data disk size size"
-  default     = 30
+  description = "Data disk size in GB"
   type        = number
+  default     = 30
 }
 
 variable "boot_diagnostics" {
+  description = "Enable boot diagnostics (creates a storage account)"
   type        = bool
-  description = "(Optional) Enable or Disable boot diagnostics"
   default     = false
 }
 
 variable "boot_diagnostics_sa_type" {
-  description = "(Optional) Storage account type for boot diagnostics"
-  default     = "Standard_LRS"
+  description = "Storage account type for boot diagnostics. Format: <Tier>_<Replication>"
   type        = string
+  default     = "Standard_LRS"
 }
 
 variable "enable_ssh_key" {
+  description = "Use SSH key authentication for Linux VMs (disables password auth)"
   type        = bool
-  description = "(Optional) Enable ssh key authentication in Linux virtual Machine"
   default     = true
 }
 
 variable "nb_data_disk" {
-  description = "(Optional) Number of the data disks attached to each virtual machine"
-  default     = 0
+  description = "Number of data disks attached to each VM"
   type        = number
+  default     = 0
+}
+
+variable "use_availability_set" {
+  description = "Place VMs in an availability set. Mutually exclusive with zone."
+  type        = bool
+  default     = true
+}
+
+variable "zone" {
+  description = "Availability zone for the VMs (e.g. \"1\"). When set, no availability set is created."
+  type        = string
+  default     = null
 }
