@@ -2,7 +2,21 @@
 
 # terraform-azurerm-compute
 
-[![Build Status](https://travis-ci.org/Azure/terraform-azurerm-compute.svg?branch=master)](https://travis-ci.org/Azure/terraform-azurerm-compute)
+## Requirements
+
+| Name      | Version          |
+|-----------|------------------|
+| terraform | >= 1.3           |
+| azurerm   | >= 3.0, < 5.0    |
+| random    | >= 3.0           |
+
+> **Breaking change vs. earlier versions of this module:** the underlying
+> resources moved from the deprecated `azurerm_virtual_machine` to
+> `azurerm_linux_virtual_machine` and `azurerm_windows_virtual_machine`,
+> with separate `azurerm_managed_disk` + `azurerm_virtual_machine_data_disk_attachment`
+> for data disks. Existing consumers need a major version bump and either
+> `terraform state mv` or destroy/recreate. The OS catalog also dropped EOL
+> entries (CentOS, CoreOS, Ubuntu 16.04) and bumped to current LTS releases.
 
 ## Deploys 1+ Virtual Machines to your provided VNet
 
